@@ -1,0 +1,8 @@
+
+If you want to run tests, define
+  EXISTDB_REST_SERVER
+  EXISTDB_REST_USER
+  EXISTDB_REST_PASSWORD
+in your environment with the server where you have eXist running (without any
+protocol prefix), a user and her's password, with rights to access the
+'/db/tests' collection. (for now, make sure the collection exists).

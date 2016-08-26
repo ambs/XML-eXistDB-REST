@@ -35,6 +35,8 @@ sub new ($class, %options) {
 	
 	$server  .= '/exist/rest' unless $server =~ m!exist/rest!;
 	$self->{server} = $server;
+
+	$self->{debug} = $options{debug} if exists $options{debug};
 		
 	return $self;
 }

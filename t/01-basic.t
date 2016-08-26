@@ -11,7 +11,7 @@ if( !exists($ENV{EXISTDB_REST_SERVER})  ||
       plan skip_all => 'No eXistDB configured for testing. See INSTALL for details.';
 }
 ## FIXME: do timeout, and skip all tests!
-my $rest = XML::eXistDB::REST->new();
+my $rest = XML::eXistDB::REST->new(debug => 0);
 
 isa_ok($rest => 'XML::eXistDB::REST', "We have an object");
 
@@ -24,10 +24,13 @@ isa_ok($tests => 'XML::eXistDB::REST::Collection', 'query to obtain collection')
 my $content = _load_file("t/sample.xml");
 $tests->put( $content => "sample.xml");
 
-ok($tests->contains("sample.xml"));
+ok($tests->contains("sample.xml"), "XML was saved");
+
+my $sample = $tests->get("sample.xml");
+is $sample, "<foo>bar</foo>","XML has correct contents";
 
 $tests->delete("sample.xml");
-ok(!$tests->contains("sample.xml"));
+ok(!$tests->contains("sample.xml"),"XML was deleted");
 	
 
 

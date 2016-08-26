@@ -30,6 +30,10 @@ sub put($self, $content, $resource) {
 	$self->{collection} = $self->{rest}->get($self->{collection}{name})->{collection};
 }
 
+sub get($self, $resource) {
+	return $self->{rest}->get($self->{collection}{name} . "/" . $resource)
+}
+
 sub _norm ($self, $resource) {
 	$resource =~ s!^$self->{collection}{name}!!g;
 	$resource =~ s!^/|/$!!g;

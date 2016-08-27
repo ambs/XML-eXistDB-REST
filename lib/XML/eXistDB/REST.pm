@@ -59,6 +59,19 @@ sub delete ($self, $collection, $resource = undef) {
 	# return $answer->{content};
 }
 
+sub query ($self, $xquery) {
+	my $query = $self->_construct_query("/");
+	print STDERR "POST [$query]\n" if $self->{debug};
+
+	my $answer = $self->{http}->post($query, {
+		content => $self->_wrap_query($xquery),
+		headers => { "content-type" => "application/xml" },
+	});
+	$self->_assert_success($answer);
+	$self->_collect_cookies($answer);
+	return $answer->{content};
+}
+
 sub put ($self, $contents, $collection, $resource = undef) {
 	$resource = $resource ? join("/", $collection, $resource) : $collection;
 	$resource = "/$resource" unless $resource =~ m!^/!;
@@ -106,6 +119,20 @@ sub get ($self, $collection, %options) {
 		$answer->{content};
 }
 
+sub _wrap_query($self, $xquery) {
+return <<"EOX";
+<query xmlns="http://exist.sourceforge.net/NS/exist"
+    start="1" 
+    max="0"
+    cache="yes"
+    session-id="$self->{session}">
+    <text><![CDATA[
+    	$xquery
+    ]]></text>
+</query>
+EOX
+}
+
 sub _construct_query($self, $collection, %params) {
 	my $query = "$self->{server}$collection";
 	if (%params) {
@@ -151,3 +178,15 @@ sub _array_to_hash ($array) {
 }
 
 1;
+
+__END__
+<query xmlns="http://exist.sourceforge.net/NS/exist"
+    start="[first item to be returned]" 
+    max="[maximum number of items to be returned]"
+    cache="[yes|no: create a session and cache results]"
+    session-id="[session id as returned by previous request]">
+    <text>[XQuery expression]</text>
+    <properties>
+        <property name="[name1]" value="[value1]"/>
+    </properties>
+</query>

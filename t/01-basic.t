@@ -32,6 +32,34 @@ is $sample, "<foo>bar</foo>","XML has correct contents";
 $tests->delete("sample.xml");
 ok(!$tests->contains("sample.xml"),"XML was deleted");
 	
+###
+
+my %files = (
+	"d0" => $content,
+	"d1" => $content =~ s/bar/zbr/r,
+	"d2" => $content =~ s/bar/ugh/r,
+	"d3" => $content =~ s/bar/baz/r,
+	"d4" => $content =~ s/bar/foo/r);
+
+for my $f (keys %files) {
+	$tests->put($files{$f} => "$f.xml");
+	ok($tests->contains("$f.xml"), "XML $f.xml was saved");
+}
+
+my $xquery = <<X;
+xquery version "3.0";
+collection("/db/tests")//foo
+X
+
+my $ans = $rest->query($xquery);
+like($ans, qr!<exist:result!);
+
+for my $f (keys %files) {
+	like($ans, qr!$files{$f}!);
+
+	$tests->delete("$f.xml");
+	ok(! $tests->contains("$f.xml"), "XML $f.xml was removed");
+}
 
 
 done_testing();
